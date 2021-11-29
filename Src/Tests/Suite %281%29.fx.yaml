@@ -1,0 +1,120 @@
+"'1b9167e0-29c5-4be1-ba2d-2e6c3be60742' As TestSuite":
+    Description: ="Test updates to Equipment needed table"
+    DisplayName: ="Suite (1)"
+
+    "'a830257c-93f1-443d-888a-b02d86d1132d' As TestCase":
+        Description: ="Update values of equipment to 8,3,4,2,7"
+        DisplayName: ="Case"
+
+        Step1 As TestStep:
+            Description: |-
+                ="Set 'SystemSelect_System_DD'.Selected to {'Value':""Contoso Health Systems""}"
+            Screen: =SplashScreen
+            Value: |-
+                =SetProperty(SystemSelect_System_DD.Selected, {Value:"Contoso Health Systems"})
+
+        Step2 As TestStep:
+            Description: |-
+                ="Set 'SystemSelect_Region_DD'.Selected to {'Value':""Contoso North""}"
+            Screen: =SplashScreen
+            Value: |-
+                =SetProperty(SystemSelect_Region_DD.Selected, {Value:"Contoso North"})
+
+        Step3 As TestStep:
+            Description: ="Select 'SystemSelect_Facility_DD'"
+            Screen: =SplashScreen
+            Value: =Select(SystemSelect_Facility_DD)
+
+        Step4 As TestStep:
+            Description: ="Select 'Splash_Next_Button'"
+            Screen: =HomeScreen
+            Value: =Select(Splash_Next_Button)
+
+        Step20 As TestStep:
+            Description: ="Click on the Equipment icon"
+            Screen: =HomeScreen
+            Value: =Select(EquipmentCountsScreen)
+
+        Step21 As TestStep:
+            Description: ="Navigate to the equipment screen"
+            Value: =Navigate(EquipmentCountsScreen) 
+
+        Step5 As TestStep:
+            Description: ="Select 'drpLocation' in row 1 in 'Gallery1'"
+            Screen: =HomeScreen
+            Value: =Select(Gallery1, 1, drpLocation)
+
+        Step6 As TestStep:
+            Description: ="Select 'drpLocation' in row 1 in 'Gallery1'"
+            Screen: =EquipmentCountsScreen
+            Value: =Select(Gallery1, 1, drpLocation)
+
+        Step7 As TestStep:
+            Description: ="Select 'drpLocation' in row 1 in 'Gallery1'"
+            Screen: =EquipmentCountsScreen
+            Value: =Select(Gallery1, 1, drpLocation)
+
+        Step8 As TestStep:
+            Description: ="Select 'txtValue' in row 3 in 'Gallery1'"
+            Screen: =EquipmentCountsScreen
+            Value: =Select(Gallery1, 3, txtValue)
+
+        Step9 As TestStep:
+            Description: ="Set 'txtValue'.Text to ""8"""
+            Screen: =EquipmentCountsScreen
+            Value: =SetProperty(txtValue.Text, "8")
+
+        Step10 As TestStep:
+            Description: ="Select 'txtValue' in row 4 in 'Gallery1'"
+            Screen: =EquipmentCountsScreen
+            Value: =Select(Gallery1, 4, txtValue)
+
+        Step11 As TestStep:
+            Description: ="Set 'txtValue'.Text to ""3"""
+            Screen: =EquipmentCountsScreen
+            Value: =SetProperty(txtValue.Text, "3")
+
+        Step12 As TestStep:
+            Description: ="Select 'txtValue' in row 5 in 'Gallery1'"
+            Screen: =EquipmentCountsScreen
+            Value: =Select(Gallery1, 5, txtValue)
+
+        Step13 As TestStep:
+            Description: ="Set 'txtValue'.Text to ""4"""
+            Screen: =EquipmentCountsScreen
+            Value: =SetProperty(txtValue.Text, "4")
+
+        Step14 As TestStep:
+            Description: ="Select 'txtValue' in row 6 in 'Gallery1'"
+            Screen: =EquipmentCountsScreen
+            Value: =Select(Gallery1, 6, txtValue)
+
+        Step15 As TestStep:
+            Description: ="Set 'txtValue'.Text to ""2"""
+            Screen: =EquipmentCountsScreen
+            Value: =SetProperty(txtValue.Text, "2")
+
+        Step16 As TestStep:
+            Description: ="Select 'txtValue' in row 7 in 'Gallery1'"
+            Screen: =EquipmentCountsScreen
+            Value: =Select(Gallery1, 7, txtValue)
+
+        Step17 As TestStep:
+            Description: ="Set 'txtValue'.Text to ""7"""
+            Screen: =EquipmentCountsScreen
+            Value: =SetProperty(txtValue.Text, "7")
+
+        Step18 As TestStep:
+            Description: ="Select 'funcCountSubmit'"
+            Screen: =EquipmentCountsScreen
+            Value: =Select(funcCountSubmit)
+
+        Step19 As TestStep:
+            Description: ="Select 'btnHome'"
+            Screen: =EquipmentCountsScreen
+            Value: =Select(btnHome)
+
+        Step22 As TestStep:
+            Description: ="Assert True"
+            Value: =Assert(true)
+

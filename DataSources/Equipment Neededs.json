@@ -1,0 +1,110 @@
+[
+  {
+    "CdsFCBContext": "{\"FileType\":true,\"ImageExternalStorage\":true}",
+    "EntitySetName": "msft_equipmentneededs",
+    "IsHidden": false,
+    "IsSampleData": false,
+    "IsWritable": true,
+    "LogicalName": "msft_equipmentneeded",
+    "MaxGetRowsCount": 500,
+    "Name": "Equipment Neededs",
+    "NativeCDSDataSourceInfoNameMapping": {
+      "_ownerid_value": "Owner",
+      "createdby": "Created By",
+      "createdon": "Created On",
+      "createdonbehalfby": "Created By (Delegate)",
+      "importsequencenumber": "Import Sequence Number",
+      "modifiedby": "Modified By",
+      "modifiedon": "Modified On",
+      "modifiedonbehalfby": "Modified By (Delegate)",
+      "msft_equipmentneeded_AsyncOperations": "System Jobs",
+      "msft_equipmentneeded_BulkDeleteFailures": "Bulk Delete Failures",
+      "msft_equipmentneeded_DuplicateBaseRecord": "Duplicate Records (msft_equipmentneeded_DuplicateBaseRecord)",
+      "msft_equipmentneeded_DuplicateMatchingRecord": "Duplicate Records (msft_equipmentneeded_DuplicateMatchingRecord)",
+      "msft_equipmentneeded_MailboxTrackingFolders": "Mailbox Auto Tracking Folders",
+      "msft_equipmentneeded_PrincipalObjectAttributeAccesses": "Field Sharing",
+      "msft_equipmentneeded_ProcessSession": "Process Sessions",
+      "msft_equipmentneeded_SyncErrors": "Sync Errors",
+      "msft_equipmentneededdate": "z_Deprecated_Equipment Needed Date",
+      "msft_equipmentneededid": "Equipment Needed",
+      "msft_Facility": "Facility",
+      "msft_Location": "Location",
+      "msft_name": "Name",
+      "msft_nippv": "NIPPV",
+      "msft_paprbeltneeded": "z_Deprecated_PAPR Belt Needed",
+      "msft_paprchargerneeded": "z_Deprecated_PAPR Charger Needed",
+      "msft_paprchargersinuse": "PAPR Chargers In Use",
+      "msft_paprhoodneedded": "z_Deprecated_PAPR Hood Needded",
+      "msft_paprhoodsinuse": "PAPR Hoods In Use",
+      "msft_parpbeltsinuse": "PAPR Belts In Use",
+      "msft_ventsinuse": "Vents In Use",
+      "msft_ventsneeded": "z_Deprecated_Vents Needed",
+      "overriddencreatedon": "Record Created On",
+      "owningbusinessunit": "Owning Business Unit",
+      "owningteam": "Owning Team",
+      "owninguser": "Owning User",
+      "statecode": "Status",
+      "statuscode": "Status Reason",
+      "timezoneruleversionnumber": "Time Zone Rule Version Number",
+      "utcconversiontimezonecode": "UTC Conversion Time Zone Code",
+      "versionnumber": "Version Number"
+    },
+    "PreferredName": "Equipment Neededs",
+    "Type": "NativeCDSDataSourceInfo"
+  },
+  {
+    "DisplayName": "Equipment Neededs (Views)",
+    "Name": "_msft_equipmentneeded_views",
+    "RelatedEntityName": "Equipment Neededs",
+    "TrimmedViewName": true,
+    "Type": "ViewInfo",
+    "ViewInfoNameMapping": {
+      "1da30ad6-91f9-4647-b26f-edcb2ed81783": "Active Equipment Needs",
+      "3979722e-b16b-ea11-a811-000d3a363dd3": "Equipment Management",
+      "3dd4a0f6-1dff-409f-a47c-346a1f307bf2": "Equipment Needed Associated View",
+      "4776c1e1-1e93-435c-bd06-b0812d540ee9": "Equipment Needed Advanced Find View",
+      "d9c3518c-c524-4844-af00-ada78c5b8b94": "Inactive Equipment Neededs",
+      "f76e99ee-251d-43f7-bf5b-253598e0eb08": "Equipment Needed Lookup View"
+    }
+  },
+  {
+    "DisplayName": "Status (Equipment Neededs)",
+    "Name": "msft_equipmentneeded_statecode",
+    "OptionSetInfoNameMapping": {
+      "0": "Active",
+      "1": "Inactive"
+    },
+    "OptionSetIsBooleanValued": false,
+    "OptionSetIsGlobal": false,
+    "OptionSetReference": {
+      "OptionSetReferenceItem0": {
+        "OptionSetReferenceColumnName": "statecode",
+        "OptionSetReferenceEntityName": "Equipment Neededs"
+      }
+    },
+    "OptionSetTypeKey": "StateType",
+    "RelatedColumnInvariantName": "statecode",
+    "RelatedEntityName": "Equipment Neededs",
+    "Type": "OptionSetInfo"
+  },
+  {
+    "DisplayName": "Status Reason (Equipment Neededs)",
+    "Name": "msft_equipmentneeded_statuscode",
+    "OptionSetInfoNameMapping": {
+      "1": "Active",
+      "2": "Inactive"
+    },
+    "OptionSetIsBooleanValued": false,
+    "OptionSetIsGlobal": false,
+    "OptionSetReference": {
+      "OptionSetReferenceItem0": {
+        "OptionSetReferenceColumnName": "statuscode",
+        "OptionSetReferenceEntityName": "Equipment Neededs"
+      }
+    },
+    "OptionSetTypeKey": "StatusType",
+    "RelatedColumnInvariantName": "statuscode",
+    "RelatedEntityName": "Equipment Neededs",
+    "Type": "OptionSetInfo"
+  }
+]

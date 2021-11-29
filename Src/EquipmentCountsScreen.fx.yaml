@@ -1,0 +1,672 @@
+EquipmentCountsScreen As screen:
+    Fill: =varColorSecondary
+    Height: =Max(App.Height, App.DesignHeight)
+    OnVisible: |-
+        =UpdateContext({showConfirmationModal: false});
+        UpdateContext({equipmentData: Blank()});
+        UpdateContext({recordCreated: false});
+        
+        ///////////////
+        /* Scripts to filter locations based on passed in Facility */
+        ///////////////
+        UpdateContext({currentFacility: If(Len(Param("FacilityID")) = 0,First(MySplashSelectionsCollection).MyFacilityColID,If(Override_Facility_Param = true,First(MySplashSelectionsCollection).MyFacilityColID,GUID(Param("FacilityID"))))});
+        
+        ClearCollect(
+            FacilityLocations,
+            Filter(
+                Locations,
+                Facility.Facility = currentFacility
+            )
+        );
+        
+        If(Not(varTrackingLevel = 'Tracking Level (Apps)'.Facility), UpdateContext({selectedLocation: drpLocation.Selected}));
+        UpdateContext({
+            varLastSubmitted: 
+                // if location level tracking, show last time for selected location, if the location is selected
+                If(Not(varTrackingLevel = 'Tracking Level (Apps)'.Facility),
+                    If(Not(IsBlank(drpLocation.Selected)), 
+                        First(Sort(Filter('Equipment Neededs', Location.Location = drpLocation.Selected.Location), 'Created On', Descending))
+                    ),
+                    First(Sort(Filter('Equipment Neededs', Facility.Facility = currentFacility), 'Created On', Descending))
+                )
+        });
+        
+        ClearCollect(formCol, 
+            { id: "StaffEquipmentScreenLocationLabel", label: LookUp(resourceStrings, TextID = "StaffEquipmentScreenLocationLabel").TextValue, type: If(Not(varTrackingLevel = 'Tracking Level (Apps)'.Facility), "field", "hidden"), showLabel: true, inputType: "dropdown" }, 
+            {id: "StaffEquipmentScreenEquipmentHeading", label: LookUp(resourceStrings, TextID = "StaffEquipmentScreenEquipmentHeading").TextValue, type: "heading", showLabel: true }, 
+            { id: "StaffEquipmentScreenVentilatorsLabel", label: LookUp(resourceStrings, TextID = "StaffEquipmentScreenVentilatorsLabel").TextValue, type: "field", showLabel: true, inputType: "number", previousvalue: varLastSubmitted.'Vents In Use' },
+             { id: "StaffEquipmentScreenNIPPVLabel", label: LookUp(resourceStrings, TextID = "StaffEquipmentScreenNIPPVLabel").TextValue, type: "field", showLabel: true, inputType: "number", previousvalue: varLastSubmitted.NIPPV },
+            { id: "StaffEquipmentScreenPAPRHoodsLabel", label: LookUp(resourceStrings, TextID = "StaffEquipmentScreenPAPRHoodsLabel").TextValue, type: "field", showLabel: true, inputType: "number", previousvalue: varLastSubmitted.'PAPR Hoods In Use' }, 
+            { id: "StaffEquipmentScreenPAPRBeltsLabel", label: LookUp(resourceStrings, TextID = "StaffEquipmentScreenPAPRBeltsLabel").TextValue, type: "field", showLabel: true, inputType: "number", previousvalue: varLastSubmitted.'PAPR Belts In Use' }, 
+            { id: "StaffEquipmentScreenPAPRChargersLabel", label: LookUp(resourceStrings, TextID = "StaffEquipmentScreenPAPRChargersLabel").TextValue, type: "field", showLabel: true, inputType: "number", previousvalue: varLastSubmitted.'PAPR Chargers In Use' }
+        );
+    Orientation: =If(EquipmentCountsScreen.Width < EquipmentCountsScreen.Height, Layout.Vertical, Layout.Horizontal)
+    Size: =1 + CountRows(App.SizeBreakpoints) - CountIf(App.SizeBreakpoints, Value >= EquipmentCountsScreen.Width)
+    Width: =Max(App.Width, App.DesignWidth)
+
+    Rectangle2 As rectangle:
+        DisabledFill: =Rectangle2.Fill
+        Fill: =RGBA(237, 235, 233, 1)
+        FocusedBorderColor: =Rectangle2.BorderColor
+        Height: =148
+        HoverFill: =Rectangle2.Fill
+        PressedFill: =Rectangle2.Fill
+        Width: =640
+        Y: =988
+        ZIndex: =1
+
+    StaffBed_HiddenField_Lbl As label:
+        FocusedBorderColor: =StaffBed_HiddenField_Lbl.BorderColor
+        Height: =70
+        HoverBorderColor: =StaffBed_HiddenField_Lbl.BorderColor
+        HoverColor: =StaffBed_HiddenField_Lbl.Color
+        HoverFill: =StaffBed_HiddenField_Lbl.Fill
+        PressedBorderColor: =StaffBed_HiddenField_Lbl.BorderColor
+        PressedColor: =StaffBed_HiddenField_Lbl.Color
+        PressedFill: =StaffBed_HiddenField_Lbl.Fill
+        Size: =10
+        Text: =AppSwitcher_1.SelectedFacility.Id
+        Visible: =false
+        Width: =97
+        X: =64
+        Y: =1066
+        ZIndex: =2
+
+    Gallery1 As gallery.galleryVertical:
+        DisabledBorderColor: =Gallery1.BorderColor
+        DisabledFill: =Gallery1.Fill
+        Height: =813
+        HoverBorderColor: =Gallery1.BorderColor
+        HoverFill: =Gallery1.Fill
+        Items: =Filter(formCol, type="field" || (type = "heading" && showLabel = true))
+        Layout: =Layout.Vertical
+        LoadingSpinnerColor: =Gallery1.BorderColor
+        PressedBorderColor: =Gallery1.BorderColor
+        PressedFill: =Gallery1.Fill
+        TemplatePadding: =20
+        TemplateSize: =173
+        Y: =175
+        ZIndex: =3
+
+        lblBackground As rectangle:
+            DisabledFill: =lblBackground.Fill
+            Fill: =RGBA(255, 255, 255, 1)
+            FocusedBorderColor: =lblBackground.BorderColor
+            Height: =136
+            HoverFill: =lblBackground.Fill
+            OnSelect: =Select(Parent)
+            PressedFill: =lblBackground.Fill
+            Visible: =ThisItem.type = "field" && Not(ThisItem.label = "StaffEquipmentScreenLocationLabel" || ThisItem.inputType = "dropdown")
+            Width: =583
+            Y: =9
+            ZIndex: =1
+
+        txtlblInline As label:
+            FocusedBorderColor: =txtlblInline.BorderColor
+            Font: =Font.'Segoe UI'
+            FontWeight: =FontWeight.Semibold
+            Height: =98
+            HoverBorderColor: =txtlblInline.BorderColor
+            HoverColor: =txtlblInline.Color
+            HoverFill: =txtlblInline.Fill
+            OnSelect: =Select(Parent)
+            PaddingLeft: =10
+            PressedBorderColor: =txtlblInline.BorderColor
+            PressedColor: =txtlblInline.Color
+            PressedFill: =txtlblInline.Fill
+            Size: =18
+            Text: =ThisItem.label
+            Visible: =ThisItem.type = "field" && Not((ThisItem.label = "Location" || ThisItem.label = "Number of patients"))
+            Width: =390
+            Y: =27
+            ZIndex: =2
+
+        txtValue As text:
+            Align: =Align.Right
+            BorderColor: =RGBA(166, 166, 166, 1)
+            Default: =
+            FocusedBorderColor: =txtValue.BorderColor
+            Font: =Font.'Segoe UI'
+            Format: =TextFormat.Number
+            Height: =80
+            HintText: =""
+            OnChange: =Set(varTotalStay, Sum(ForAll(Gallery1.AllItems, If(label <> "Past 24 h" && label <> "Likely next 24 h", Value(txtValue.Text))), Value));
+            OnSelect: =Select(Parent)
+            PressedBorderColor: =txtValue.HoverBorderColor
+            PressedColor: =txtValue.Color
+            PressedFill: =txtValue.Fill
+            Reset: =ResetInputFields
+            Size: =18
+            Visible: =ThisItem.type = "field" && ThisItem.inputType = "number"
+            Width: =147
+            X: =417
+            Y: =38
+            ZIndex: =3
+
+        lblSectionHeading As label:
+            FocusedBorderColor: =lblSectionHeading.BorderColor
+            Font: =Font.'Segoe UI'
+            Height: =50
+            HoverBorderColor: =lblSectionHeading.BorderColor
+            HoverColor: =lblSectionHeading.Color
+            HoverFill: =lblSectionHeading.Fill
+            OnSelect: =Select(Parent)
+            PressedBorderColor: =lblSectionHeading.BorderColor
+            PressedColor: =lblSectionHeading.Color
+            PressedFill: =lblSectionHeading.Fill
+            Size: =21
+            Text: =ThisItem.label
+            Visible: =ThisItem.type = "heading"
+            Width: =560
+            Y: =77
+            ZIndex: =4
+
+        drpLocation As dropdown:
+            BorderColor: =RGBA(102, 102, 102, 1)
+            ChevronBackground: =RGBA(255, 255, 255, 1)
+            ChevronDisabledBackground: =RGBA(244, 244, 244, 1)
+            ChevronDisabledFill: =RGBA(166, 166, 166, 1)
+            ChevronFill: =RGBA(96, 94, 92, 1)
+            ChevronHoverBackground: =RGBA(212, 212, 212, 1)
+            ChevronHoverFill: =RGBA(33, 33, 33, 1)
+            Default: =If(IsBlank(selectedLocation), First(SortByColumns(FacilityLocations, "msft_locationorder")).'Location Name', selectedLocation.'Location Name')
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            FocusedBorderColor: =drpLocation.BorderColor
+            Font: =Font.'Segoe UI'
+            Height: =80
+            HoverBorderColor: =ColorFade(RGBA(0, 120, 212, 1), -30%)
+            HoverColor: =RGBA(51, 51, 51, 1)
+            HoverFill: =RGBA(212, 212, 212, 1)
+            Items: =SortByColumns(FacilityLocations, "msft_locationorder")
+            OnChange: |+
+                =UpdateContext({selectedLocation: First(Filter(Gallery1.AllItems, id = "StaffEquipmentScreenLocationLabel")).drpLocation.Selected});
+                If(Not(varTrackingLevel = 'Tracking Level (Apps)'.Facility),
+                    UpdateContext({
+                        varLastSubmitted: 
+                            If(Not(varTrackingLevel = 'Tracking Level (Apps)'.Facility),
+                                If(Not(IsBlank(selectedLocation)), 
+                                    First(Sort(Filter('Equipment Neededs', Location.Location = selectedLocation.Location), 'Created On', Descending)),
+                                    Blank()
+                                )
+                            )
+                    });
+                );
+                Clear(formCol);
+                ClearCollect(formCol, 
+                    { id: "StaffEquipmentScreenLocationLabel", label: LookUp(resourceStrings, TextID = "StaffEquipmentScreenLocationLabel").TextValue, type: If(Not(varTrackingLevel = 'Tracking Level (Apps)'.Facility), "field", "hidden"), showLabel: true, inputType: "dropdown" }, 
+                    {id: "StaffEquipmentScreenEquipmentHeading", label: LookUp(resourceStrings, TextID = "StaffEquipmentScreenEquipmentHeading").TextValue, type: "heading", showLabel: true }, 
+                    { id: "StaffEquipmentScreenVentilatorsLabel", label: LookUp(resourceStrings, TextID = "StaffEquipmentScreenVentilatorsLabel").TextValue, type: "field", showLabel: true, inputType: "number", previousvalue: varLastSubmitted.'Vents In Use' },
+                    { id: "StaffEquipmentScreenNIPPVLabel", label: LookUp(resourceStrings, TextID = "StaffEquipmentScreenNIPPVLabel").TextValue, type: "field", showLabel: true, inputType: "number", previousvalue: varLastSubmitted.NIPPV },
+                    { id: "StaffEquipmentScreenPAPRHoodsLabel", label: LookUp(resourceStrings, TextID = "StaffEquipmentScreenPAPRHoodsLabel").TextValue, type: "field", showLabel: true, inputType: "number", previousvalue: varLastSubmitted.'PAPR Hoods In Use' }, 
+                    { id: "StaffEquipmentScreenPAPRBeltsLabel", label: LookUp(resourceStrings, TextID = "StaffEquipmentScreenPAPRBeltsLabel").TextValue, type: "field", showLabel: true, inputType: "number", previousvalue: varLastSubmitted.'PAPR Belts In Use' }, 
+                    { id: "StaffEquipmentScreenPAPRChargersLabel", label: LookUp(resourceStrings, TextID = "StaffEquipmentScreenPAPRChargersLabel").TextValue, type: "field", showLabel: true, inputType: "number", previousvalue: varLastSubmitted.'PAPR Chargers In Use' }
+                );
+                
+            PaddingBottom: =5
+            PaddingTop: =5
+            PressedBorderColor: =ColorFade(RGBA(0, 120, 212, 1), -30%)
+            PressedFill: =RGBA(0, 120, 212, 1)
+            SelectionFill: =RGBA(0, 120, 212, 1)
+            Size: =18
+            Visible: =ThisItem.inputType = "dropdown" && ThisItem.id = "StaffEquipmentScreenLocationLabel"
+            Width: =Parent.TemplateWidth - 20
+            X: =1
+            Y: =47
+            ZIndex: =5
+
+        txtlblAbove As label:
+            FocusedBorderColor: =txtlblAbove.BorderColor
+            Font: =Font.'Segoe UI'
+            FontWeight: =FontWeight.Semibold
+            Height: =39
+            HoverBorderColor: =txtlblAbove.BorderColor
+            HoverColor: =txtlblAbove.Color
+            HoverFill: =txtlblAbove.Fill
+            OnSelect: =Select(Parent)
+            PressedBorderColor: =txtlblAbove.BorderColor
+            PressedColor: =txtlblAbove.Color
+            PressedFill: =txtlblAbove.Fill
+            Size: =18
+            Text: =ThisItem.label
+            Visible: =ThisItem.type = "field" && ThisItem.id = "StaffEquipmentScreenLocationLabel"
+            Width: =379
+            ZIndex: =6
+
+        lblprev As label:
+            Color: =RGBA(117, 117, 122, 1)
+            FocusedBorderColor: =lblprev.BorderColor
+            Font: =Font.'Segoe UI'
+            Height: =27
+            HoverBorderColor: =lblprev.BorderColor
+            HoverColor: =lblprev.Color
+            HoverFill: =lblprev.Fill
+            OnSelect: =Select(Parent)
+            PressedBorderColor: =lblprev.BorderColor
+            PressedColor: =lblprev.Color
+            PressedFill: =lblprev.Fill
+            Size: =16
+            Text: =LookUp(resourceStrings, TextID = "PreviousValueText").TextValue
+            Visible: =ThisItem.type = "field" && Not(ThisItem.label = "StaffEquipmentScreenLocationLabel" || ThisItem.inputType = "dropdown")
+            Width: =390
+            Y: =148
+            ZIndex: =7
+
+        lblprevval As label:
+            Color: =RGBA(117, 117, 122, 1)
+            FocusedBorderColor: =lblprevval.BorderColor
+            Font: =Font.'Segoe UI'
+            Height: =lblprev.Height
+            HoverBorderColor: =lblprevval.BorderColor
+            HoverColor: =lblprevval.Color
+            HoverFill: =lblprevval.Fill
+            OnSelect: =Select(Parent)
+            PressedBorderColor: =lblprevval.BorderColor
+            PressedColor: =lblprevval.Color
+            PressedFill: =lblprevval.Fill
+            Size: =16
+            Text: =ThisItem.previousvalue
+            Visible: =ThisItem.type = "field" && Not(ThisItem.label = "StaffEquipmentScreenLocationLabel" || ThisItem.inputType = "dropdown")
+            Width: =txtValue.Width
+            X: =txtValue.X
+            Y: =lblprev.Y
+            ZIndex: =8
+
+    lblFacilityName_2 As label:
+        Align: =Center
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        Color: =RGBA(2, 112, 145, 1)
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        Fill: =RGBA(223, 245, 245, 1)
+        FocusedBorderColor: =lblFacilityName_2.BorderColor
+        FocusedBorderThickness: =4
+        Font: =Font.'Segoe UI'
+        FontWeight: =Semibold
+        Height: =App.DesignHeight*10%
+        HoverBorderColor: =lblFacilityName_2.BorderColor
+        HoverColor: =lblFacilityName_2.Color
+        HoverFill: =lblFacilityName_2.Fill
+        PaddingLeft: =0
+        PressedBorderColor: =lblFacilityName_2.BorderColor
+        PressedColor: =lblFacilityName_2.Color
+        PressedFill: =lblFacilityName_2.Fill
+        Size: =20
+        Text: =ThisAppDisplayName
+        Width: =Parent.Width
+        X: =0+0
+        Y: =0+0
+        ZIndex: =4
+
+    Icon1_2 As icon.ArrowLeft:
+        BorderColor: =RGBA(0, 0, 0, 1)
+        Color: =RGBA(2, 112, 145, 1)
+        DisabledFill: =Icon1_2.Fill
+        FocusedBorderColor: =Icon1_2.BorderColor
+        Height: =40
+        HoverBorderColor: =ColorFade(Icon1_2.BorderColor, 20%)
+        HoverColor: =ColorFade(Icon1_2.Color, 20%)
+        HoverFill: =Icon1_2.Fill
+        Icon: =Icon.ArrowLeft
+        OnSelect: |-
+            =Navigate(
+                HomeScreen,
+                LookUp(
+                    colStyles,
+                    Key = "navigation_transition"
+                ).Value
+            );
+            Clear(formCol);
+        PressedBorderColor: =ColorFade(Icon1_2.BorderColor, -20%)
+        PressedColor: =ColorFade(Icon1_2.Color, -20%)
+        PressedFill: =Icon1_2.Fill
+        Width: =40
+        X: =30
+        Y: =lblFacilityName_2.Y + (lblFacilityName_2.Height - Icon1_2.Height)/2
+        ZIndex: =5
+
+    Me_Feedback_Icon_1 As image:
+        FocusedBorderColor: =Me_Feedback_Icon_1.BorderColor
+        Height: =69
+        HoverBorderColor: =ColorFade(Me_Feedback_Icon_1.BorderColor, 20%)
+        HoverFill: =ColorFade(Me_Feedback_Icon_1.Fill, 20%)
+        Image: =IconFeedbackEquipment
+        OnSelect: =Navigate(FeedbackScreen,Fade)
+        PressedBorderColor: =ColorFade(Me_Feedback_Icon_1.BorderColor, -20%)
+        PressedFill: =ColorFade(Me_Feedback_Icon_1.Fill, -20%)
+        Width: =68
+        X: =557
+        Y: =9
+        ZIndex: =6
+
+    Icon1_3 As icon.Waypoint:
+        Color: =varColorPrimary
+        DisabledFill: =Icon1_3.Fill
+        FocusedBorderColor: =Icon1_3.BorderColor
+        Height: =30
+        HoverBorderColor: =ColorFade(Icon1_3.BorderColor, 20%)
+        HoverColor: =ColorFade(Icon1_3.Color, 20%)
+        HoverFill: =Icon1_3.Fill
+        Icon: =Icon.Waypoint
+        OnSelect: =Navigate(SplashScreen,Fade)
+        PressedBorderColor: =ColorFade(Icon1_3.BorderColor, -20%)
+        PressedColor: =ColorFade(Icon1_3.Color, -20%)
+        PressedFill: =Icon1_3.Fill
+        Width: =30
+        X: =lblFacility_3.X - Icon1_3.Width
+        Y: =129
+        ZIndex: =7
+
+    lblFacility_3 As label:
+        Align: =Left
+        BorderColor: =RGBA(0, 0, 0, 0)
+        BorderStyle: =BorderStyle.None
+        BorderThickness: =2
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        FocusedBorderColor: =lblFacility_3.BorderColor
+        FocusedBorderThickness: =4
+        Font: =Font.'Segoe UI'
+        FontWeight: =Semibold
+        Height: =50
+        HoverBorderColor: =lblFacility_3.BorderColor
+        HoverColor: =lblFacility_3.Color
+        HoverFill: =lblFacility_3.Fill
+        OnSelect: =Navigate(SplashScreen,Fade)
+        PressedBorderColor: =lblFacility_3.BorderColor
+        PressedColor: =lblFacility_3.Color
+        PressedFill: =lblFacility_3.Fill
+        Size: =14
+        Text: =If(IsBlank(ParamFacility),First(MySplashSelectionsCollection).MyFacilityCol,If(Override_Facility_Param = true,First(MySplashSelectionsCollection).MyFacilityCol,ParamFacility))
+        Width: =200
+        X: =411
+        Y: =125
+        ZIndex: =8
+
+    Telemetry As image:
+        FocusedBorderColor: =Telemetry.BorderColor
+        Height: =20
+        HoverBorderColor: =ColorFade(Telemetry.BorderColor, 20%)
+        HoverFill: =ColorFade(Telemetry.Fill, 20%)
+        Image: |-
+            ="https://web.powerapps.com/pixeltag/emergency-response/staffandequipment"
+        PressedBorderColor: =ColorFade(Telemetry.BorderColor, -20%)
+        PressedFill: =ColorFade(Telemetry.Fill, -20%)
+        Width: =20
+        X: =5
+        Y: =5
+        ZIndex: =9
+
+    funcCountSubmit As button:
+        BorderColor: =RGBA(166, 166, 166, 1)
+        BorderStyle: =Solid
+        BorderThickness: =0
+        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+        Fill: =varColorPrimary
+        FocusedBorderColor: =funcCountSubmit.BorderColor
+        Font: =Font.'Segoe UI'
+        FontWeight: =FontWeight.Normal
+        Height: =80
+        HoverBorderColor: =RGBA(0, 0, 0, 0)
+        HoverColor: =funcCountSubmit.Color
+        HoverFill: =ColorFade(funcCountSubmit.Fill, -10%)
+        OnSelect: |+
+            =Trace(
+                "Equipments: Submit Button",
+                TraceSeverity.Information
+            );
+            
+            // Check for location if it is required level of tracking
+            If(Not(varTrackingLevel = 'Tracking Level (Apps)'.Facility) && IsBlank(selectedLocation),
+                Notify(LookUp(resourceStrings, TextID = "LocationRequiredError").TextValue, NotificationType.Error,2000),
+                
+                
+                //////////////////
+                /* SAVE RECORDS */
+                //////////////////
+            
+                UpdateContext({equipmentData: {
+                    chargers: First(Filter(Gallery1.AllItems, id = "StaffEquipmentScreenPAPRChargersLabel")).txtValue.Text,
+                    belts: First(Filter(Gallery1.AllItems, id = "StaffEquipmentScreenPAPRBeltsLabel")).txtValue.Text,
+                    hoods: First(Filter(Gallery1.AllItems, id = "StaffEquipmentScreenPAPRHoodsLabel")).txtValue.Text,
+                    vents: First(Filter(Gallery1.AllItems, id = "StaffEquipmentScreenVentilatorsLabel")).txtValue.Text,
+                    nippv: First(Filter(Gallery1.AllItems, id = "StaffEquipmentScreenNIPPVLabel")).txtValue.Text,
+                    location: If(Not(varTrackingLevel = 'Tracking Level (Apps)'.Facility), selectedLocation, Blank()),
+                    facility: First(Filter(Facilities,Facility = currentFacility))
+                }});
+            
+                UpdateContext({equipmentCreated: IsBlank(equipmentData.chargers) = false || IsBlank(equipmentData.belts) = false || IsBlank(equipmentData.hoods) = false || IsBlank(equipmentData.vents) = false});
+                If(equipmentCreated,
+                        Patch(
+                        'Equipment Neededs',
+                        Defaults('Equipment Neededs'),
+                        {
+                            Location: equipmentData.location,
+                            'PAPR Chargers In Use': Value(equipmentData.chargers),
+                            'PAPR Belts In Use': Value(equipmentData.belts),
+                            'PAPR Hoods In Use': Value(equipmentData.hoods),
+                            'Vents In Use': Value(equipmentData.vents),
+                            NIPPV: Value(equipmentData.nippv),
+                            Facility: equipmentData.facility
+                        }
+                    );   
+                );
+            
+                If(equipmentCreated,
+                        UpdateContext({showConfirmationModal: true, ResetInputFields: true});
+                        UpdateContext({ResetInputFields: false});
+                        UpdateContext({
+                            varLastSubmitted: 
+                                // if location level tracking, show last time for selected location, if the location is selected
+                                If(varTrackingLevel = 'Tracking Level (Apps)'.Location,
+                                    If(Not(IsBlank(selectedLocation)), 
+                                        First(Sort(Filter('Equipment Neededs', Location.Location = selectedLocation.Location), 'Created On', Descending))
+                                    ),
+                                    First(Sort(Filter('Equipment Neededs', Facility.Facility = currentFacility), 'Created On', Descending))
+                                )
+                        });
+                        Clear(formCol);
+                        Collect(formCol, 
+                            { id: "StaffEquipmentScreenLocationLabel", label: LookUp(resourceStrings, TextID = "StaffEquipmentScreenLocationLabel").TextValue, type: If(Not(varTrackingLevel = 'Tracking Level (Apps)'.Facility), "field", "hidden"), showLabel: true, inputType: "dropdown" }, 
+                            {id: "StaffEquipmentScreenEquipmentHeading", label: LookUp(resourceStrings, TextID = "StaffEquipmentScreenEquipmentHeading").TextValue, type: "heading", showLabel: true }, 
+                            { id: "StaffEquipmentScreenVentilatorsLabel", label: LookUp(resourceStrings, TextID = "StaffEquipmentScreenVentilatorsLabel").TextValue, type: "field", showLabel: true, inputType: "number", previousvalue: varLastSubmitted.'Vents In Use' },
+                            { id: "StaffEquipmentScreenNIPPVLabel", label: LookUp(resourceStrings, TextID = "StaffEquipmentScreenNIPPVLabel").TextValue, type: "field", showLabel: true, inputType: "number", previousvalue: varLastSubmitted.NIPPV },
+                            { id: "StaffEquipmentScreenPAPRHoodsLabel", label: LookUp(resourceStrings, TextID = "StaffEquipmentScreenPAPRHoodsLabel").TextValue, type: "field", showLabel: true, inputType: "number", previousvalue: varLastSubmitted.'PAPR Hoods In Use' }, 
+                            { id: "StaffEquipmentScreenPAPRBeltsLabel", label: LookUp(resourceStrings, TextID = "StaffEquipmentScreenPAPRBeltsLabel").TextValue, type: "field", showLabel: true, inputType: "number", previousvalue: varLastSubmitted.'PAPR Belts In Use' }, 
+                            { id: "StaffEquipmentScreenPAPRChargersLabel", label: LookUp(resourceStrings, TextID = "StaffEquipmentScreenPAPRChargersLabel").TextValue, type: "field", showLabel: true, inputType: "number", previousvalue: varLastSubmitted.'PAPR Chargers In Use' }
+                        );,
+                        
+                        Notify(LookUp(resourceStrings, TextID = "GenericErrorCompleteAllFields").TextValue, NotificationType.Error, 2000)
+                    )
+            )
+            
+            
+        PressedBorderColor: =ColorFade(funcCountSubmit.BorderColor, -50%)
+        PressedColor: =funcCountSubmit.Color
+        PressedFill: =ColorFade(funcCountSubmit.Fill, -30%)
+        RadiusBottomLeft: =funcCountSubmit.RadiusTopLeft
+        RadiusBottomRight: =funcCountSubmit.RadiusTopLeft
+        RadiusTopLeft: =5
+        RadiusTopRight: =funcCountSubmit.RadiusTopLeft
+        Size: =22
+        Text: =LookUp(resourceStrings, TextID = "SubmitButtonText").TextValue
+        Width: =Parent.Width - 80
+        X: =(Parent.Width-funcCountSubmit.Width)/2
+        Y: =1015    
+        ZIndex: =10
+
+    lbl_last_submitted As label:
+        Align: =Align.Center
+        FocusedBorderColor: =lbl_last_submitted.BorderColor
+        Height: =41
+        HoverBorderColor: =lbl_last_submitted.BorderColor
+        HoverColor: =lbl_last_submitted.Color
+        HoverFill: =lbl_last_submitted.Fill
+        PressedBorderColor: =lbl_last_submitted.BorderColor
+        PressedColor: =lbl_last_submitted.Color
+        PressedFill: =lbl_last_submitted.Fill
+        Size: =14
+        Text: |
+            =If(IsBlank(varLastSubmitted), 
+                LookUp(resourceStrings, TextID = "NotYetSubmittedText").TextValue, 
+                Substitute(Substitute(LookUp(resourceStrings, TextID = "LastSubmittedByText").TextValue, "<Time stamp>", Text(varLastSubmitted.'Created On', ShortTime) & " " & Text(varLastSubmitted.'Created On', ShortDate) & " "), "<Full Name>", varLastSubmitted.'Created By'.'Full Name'))
+        Width: =Parent.Width
+        X: =(Parent.Width-lbl_last_submitted.Width)/2
+        Y: =1095
+        ZIndex: =11
+
+    confirmationScreen As group:
+        Height: =5
+        Width: =5
+        X: =60
+        Y: =60
+        ZIndex: =19
+
+        confScreenOverlay As rectangle:
+            DisabledFill: =confScreenOverlay.Fill
+            Fill: =RGBA(59, 58, 57, 0.4)
+            FocusedBorderColor: =confScreenOverlay.BorderColor
+            Height: =Parent.Height
+            HoverFill: =confScreenOverlay.Fill
+            PressedFill: =confScreenOverlay.Fill
+            Visible: =showConfirmationModal
+            Width: =Parent.Width
+            ZIndex: =12
+
+        confScreenModal As rectangle:
+            DisabledFill: =confScreenModal.Fill
+            Fill: =RGBA(255, 255, 255, 1)
+            FocusedBorderColor: =confScreenModal.BorderColor
+            Height: =If(Not(varTrackingLevel = 'Tracking Level (Apps)'.Facility), 701, 604)
+            HoverFill: =confScreenModal.Fill
+            PressedFill: =confScreenModal.Fill
+            Visible: =showConfirmationModal
+            Width: =confScreenOverlay.Width - 80
+            X: =40
+            Y: =confScreenOverlay.Y + 125
+            ZIndex: =13
+
+        lblConfScreenTitle As label:
+            Align: =Align.Center
+            FocusedBorderColor: =lblConfScreenTitle.BorderColor
+            Font: =Font.'Segoe UI'
+            FontWeight: =FontWeight.Bold
+            Height: =70
+            HoverBorderColor: =lblConfScreenTitle.BorderColor
+            HoverColor: =lblConfScreenTitle.Color
+            HoverFill: =lblConfScreenTitle.Fill
+            PressedBorderColor: =lblConfScreenTitle.BorderColor
+            PressedColor: =lblConfScreenTitle.Color
+            PressedFill: =lblConfScreenTitle.Fill
+            Size: =24
+            Text: =Substitute(LookUp(resourceStrings, TextID = "ConfirmationScreenTitle").TextValue, "<App name>", ThisAppDisplayName)
+            Visible: =showConfirmationModal
+            Width: =confScreenModal.Width
+            X: =40
+            Y: =confScreenImage.Y + confScreenImage.Height + 25
+            ZIndex: =14
+
+        lblConfScreenMessage As label:
+            Align: =Align.Center
+            FocusedBorderColor: =lblConfScreenMessage.BorderColor
+            Height: =70
+            HoverBorderColor: =lblConfScreenMessage.BorderColor
+            HoverColor: =lblConfScreenMessage.Color
+            HoverFill: =lblConfScreenMessage.Fill
+            PressedBorderColor: =lblConfScreenMessage.BorderColor
+            PressedColor: =lblConfScreenMessage.Color
+            PressedFill: =lblConfScreenMessage.Fill
+            Size: =17
+            Text: =LookUp(resourceStrings, TextID = "ConfirmationScreenSubtitle").TextValue
+            Visible: =showConfirmationModal
+            Width: =confScreenModal.Width
+            X: =40
+            Y: =lblConfScreenTitle.Y + lblConfScreenTitle.Height
+            ZIndex: =15
+
+        btnTrackAnother As button:
+            BorderColor: =varColorPrimary
+            BorderStyle: =Solid
+            BorderThickness: =1
+            Color: =varColorPrimary
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            Fill: =RGBA(255, 255, 255, 1)
+            FocusedBorderColor: =btnTrackAnother.BorderColor
+            Font: =Font.'Segoe UI'
+            FontWeight: =FontWeight.Normal
+            Height: =80
+            HoverBorderColor: =RGBA(0, 0, 0, 0)
+            HoverColor: =btnTrackAnother.Color
+            HoverFill: =ColorFade(btnTrackAnother.Fill, -10%)
+            OnSelect: |-
+                =Trace(
+                    "Equipments: Confirmation Screen Track Another Button",
+                    TraceSeverity.Information
+                );
+                
+                UpdateContext({recordCreated: false});
+                UpdateContext({showConfirmationModal: false});
+            PressedBorderColor: =ColorFade(btnTrackAnother.BorderColor, -50%)
+            PressedColor: =btnTrackAnother.Color
+            PressedFill: =ColorFade(btnTrackAnother.Fill, -30%)
+            RadiusBottomLeft: =btnTrackAnother.RadiusTopLeft
+            RadiusBottomRight: =btnTrackAnother.RadiusTopLeft
+            RadiusTopLeft: =5
+            RadiusTopRight: =btnTrackAnother.RadiusTopLeft
+            Size: =22
+            Text: =LookUp(resourceStrings, TextID = "ConfirmationScreenTrackAnotherButtonText").TextValue
+            Visible: =If(showConfirmationModal && Not(varTrackingLevel = 'Tracking Level (Apps)'.Facility), true, false)
+            Width: =confScreenModal.Width - 80
+            X: =confScreenModal.X + 40
+            Y: =btnHome.Y + btnHome.Height + 25
+            ZIndex: =16
+
+        btnHome As button:
+            BorderColor: =varColorPrimary
+            BorderStyle: =Solid
+            BorderThickness: =1
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            Fill: =varColorPrimary
+            FocusedBorderColor: =btnHome.BorderColor
+            Font: =Font.'Segoe UI'
+            FontWeight: =FontWeight.Normal
+            Height: =80
+            HoverBorderColor: =RGBA(0, 0, 0, 0)
+            HoverColor: =btnHome.Color
+            HoverFill: =ColorFade(btnHome.Fill, -10%)
+            OnSelect: |+
+                =Trace(
+                    "Staff Bed Counts: Confirmation Screen Home Button",
+                    TraceSeverity.Information
+                );
+                UpdateContext({showConfirmationModal: false});
+                Navigate(HomeScreen, ScreenTransition.None);
+                
+            PressedBorderColor: =ColorFade(btnHome.BorderColor, -50%)
+            PressedColor: =btnHome.Color
+            PressedFill: =ColorFade(btnHome.Fill, -30%)
+            RadiusBottomLeft: =btnHome.RadiusTopLeft
+            RadiusBottomRight: =btnHome.RadiusTopLeft
+            RadiusTopLeft: =5
+            RadiusTopRight: =btnHome.RadiusTopLeft
+            Size: =22
+            Text: =LookUp(resourceStrings, TextID = "ConfirmationScreenHomeButtonText").TextValue
+            Visible: =showConfirmationModal
+            Width: =confScreenModal.Width - 80
+            X: =confScreenModal.X + 40
+            Y: =lblConfScreenMessage.Y + lblConfScreenMessage.Height + 25
+            ZIndex: =17
+
+        confScreenImage As image:
+            FocusedBorderColor: =confScreenImage.BorderColor
+            Height: =273
+            HoverBorderColor: =ColorFade(confScreenImage.BorderColor, 20%)
+            HoverFill: =ColorFade(confScreenImage.Fill, 20%)
+            Image: =ConfirmationScreenImage
+            PressedBorderColor: =ColorFade(confScreenImage.BorderColor, -20%)
+            PressedFill: =ColorFade(confScreenImage.Fill, -20%)
+            Visible: =showConfirmationModal
+            Width: =confScreenModal.Width - 40
+            X: =confScreenModal.X + 20
+            Y: =confScreenModal.Y + 30
+            ZIndex: =18
+
